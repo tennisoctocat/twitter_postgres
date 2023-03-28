@@ -331,15 +331,10 @@ if __name__ == '__main__':
             for subfilename in sorted(archive.namelist(), reverse=True):
                 with io.TextIOWrapper(archive.open(subfilename)) as f:
                     for i,line in enumerate(f):
-                        # line = remove_nulls(line)
-
                         # load and insert the tweet
-                        tweet = json.loads(remove_nulls(line))
-                        if (line != remove_nulls(line)):
-                            print("remove_nulls worked!")
+                        tweet = json.loads(line)
                         insert_tweet(connection,tweet)
 
                         # print message
                         if i%args.print_every==0:
                             print(datetime.datetime.now(),filename,subfilename,'i=',i,'id=',tweet['id'])
-    print("finished")
