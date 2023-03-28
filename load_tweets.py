@@ -117,7 +117,6 @@ def insert_tweet(connection,tweet):
 
 
             # create/update the user
-            # TODO: determine where remove_nulls is supposed to be
             sql = sqlalchemy.sql.text('''
                 insert into users 
                     (id_users, created_at, id_urls, friends_count, listed_count, favourites_count, statuses_count, protected, verified, screen_name, name, location, description)
@@ -191,7 +190,6 @@ def insert_tweet(connection,tweet):
                     on conflict do nothing;
                     ''')
                 res = connection.execute(sql,{'id_users':tweet.get('in_reply_to_user_id', None)})
-            # TODO: check if we need the on conflict do nothing part
             # insert the tweet
             # TODO reinsert geo
             sql=sqlalchemy.sql.text(f'''
