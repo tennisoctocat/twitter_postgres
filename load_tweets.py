@@ -302,7 +302,7 @@ def insert_tweet(connection,tweet):
                         on conflict do nothing;
                     ''')
                 res = connection.execute(sql, {'id_tweets':tweet['id'], 'id_urls':id_urls, 'type':medium['type']})
-    except InvalidRequestError:
+    except sqlalchemy.exc.InvalidRequestError:
         print("ERROR: self._transaction is", connection._transaction, "but it should be None")
 ################################################################################
 # main functions
