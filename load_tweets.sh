@@ -16,14 +16,9 @@ done
 echo 'load denormalized'
 for file in $files; do
     # use SQL's COPY command to load data into pg_denormalized
-    POSTGRES_DB_URL="postgresql://postgres:pass@0.0.0.0:1277/postgres" # "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@pg_denormalized:5432/postgres"
-    #$PGDATA #/var/lib/postgresql/data
-    TABLENAME="tweets_jsonb"
-    COLUMNNAME="data"
-    # echo "loading a file" 
-    # echo "{}"| sed 's/\\u0000//g' | psql $POSTGRES_DB_URL -c "COPY $TABLENAME ($COLUMNNAME) FROM STDIN csv quote e'\x01' delimiter e'\x02';"
-    file $file
-    # cat $file | sed 's/\\u0000//g' | psql "$POSTGRES_DB_URL" -c "COPY $TABLENAME ($COLUMNNAME) FROM STDIN csv quote e'\x01' delimiter e'\x02';" 
-    cat $file | sed 's/\\u0000//g' | psql "postgresql://postgres:pass@0.0.0.0:1277/postgres" -c "COPY tweets_jsonb (data) FROM STDIN csv quote e'\x01' delimiter e'\x02';"
-
+    # POSTGRES_DB_URL="postgresql://postgres:pass@0.0.0.0:1277/postgres" # "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@pg_denormalized:5432/postgres"
+    # TABLENAME="tweets_jsonb"
+    # COLUMNNAME="data"
+    cat "$file" | sed 's/\\u0000//g' | psql "postgresql://postgres:pass@0.0.0.0:1277/postgres" -c "COPY tweets_jsonb (data) FROM STDIN csv quote e'\x01' delimiter e'\x02';"
+    # sed 's/\xbe//g' | sed 's/\x9d//g' | p
 done
