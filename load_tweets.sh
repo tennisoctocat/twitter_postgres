@@ -20,6 +20,6 @@ for file in $files; do
     # POSTGRES_DB_URL="postgresql://postgres:pass@0.0.0.0:1277/postgres" # "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@pg_denormalized:5432/postgres"
     # TABLENAME="tweets_jsonb"
     # COLUMNNAME="data"
-#    cat "$file" | sed 's/\\u0000//g' | psql "postgresql://postgres:pass@0.0.0.0:1277/postgres" -c "COPY tweets_jsonb (data) FROM STDIN csv quote e'\x01' delimiter e'\x02';"
+    zcat "$file" | sed 's/\\u0000//g' | psql "postgresql://postgres:pass@0.0.0.0:1277/postgres" -c "COPY tweets_jsonb (data) FROM STDIN csv quote e'\x01' delimiter e'\x02';"
     # sed 's/\xbe//g' | sed 's/\x9d//g' | p
 done
