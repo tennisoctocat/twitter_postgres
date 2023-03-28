@@ -36,7 +36,7 @@ def remove_nulls(s):
         return None
     else:
         return s.replace('\x00','')
-
+ 
 
 def get_id_urls(url, connection):
     '''
@@ -93,7 +93,7 @@ def insert_tweet(connection,tweet):
     SELECT id_tweets 
     FROM tweets
     WHERE id_tweets = :id_tweets
-    ''')
+    '''),
     res = connection.execute(sql,{
         'id_tweets':tweet['id'],
         })
@@ -320,6 +320,7 @@ if __name__ == '__main__':
         'application_name': 'load_tweets.py',
         })
     connection = engine.connect()
+    print("connection isolation level is", connction.get_isolation_level())
 
     # loop through the input file
     # NOTE:
