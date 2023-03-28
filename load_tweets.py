@@ -100,7 +100,6 @@ def insert_tweet(connection,tweet):
     if res.first() is not None:
         return
 
-    print("in insert function")
 
     # insert tweet within a transaction;
     # this ensures that a tweet does not get "partially" loaded
@@ -114,21 +113,19 @@ def insert_tweet(connection,tweet):
         else:
             user_id_urls = get_id_urls(tweet['user']['url'], connection)
 
-        print("in transaction")
 
         # create/update the user
         # TODO: determine where remove_nulls is supposed to be
-        sql = sqlalchemy.sql.text(remove_nulls('''
+        sql = sqlalchemy.sql.text('''
             insert into users 
                 (id_users, created_at, id_urls, friends_count, listed_count, favourites_count, statuses_count, protected, verified, screen_name, name, location, description)
                 values
                 (:id_users, :created_at, :id_urls, :friends_count, :listed_count, :favourites_count, :statuses_count, :protected, :verified, :screen_name, :name, :location, :description)
             on conflict do nothing;
-            '''))
+            ''')
         user = tweet['user']
-        res = connection.execute(sql,{'id_users':user['id'], 'name':user['name'], 'screen_name':user['screen_name'], 'location':user['location'], 'description':user['description'], 'protected':user['protected'], 'verified':user['verified'], 'friends_count':user['friends_count'], 'favourites_count':user['favourites_count'], 'listed_count':user['listed_count'], 'created_at':user['created_at'], 'id_urls':user_id_urls, 'statuses_count':user['statuses_count'],})
+        res = connection.execute(sql,{'id_users':user['id'], 'name':remove_nulls(user['name']), 'screen_name':remove_nulls(user['screen_name']), 'location':remove_nulls(user['location']), 'description':remove_nulls(user['description']), 'protected':user['protected'], 'verified':user['verified'], 'friends_count':user['friends_count'], 'favourites_count':user['favourites_count'], 'listed_count':user['listed_count'], 'created_at':user['created_at'], 'id_urls':user_id_urls, 'statuses_count':user['statuses_count'],})
 
-        print('users')
         ########################################
         # insert into the tweets table
         ########################################
@@ -206,7 +203,6 @@ def insert_tweet(connection,tweet):
         ########################################
         # insert into the tweet_urls table
         ########################################
-        print("urls")
         try:
             urls = tweet['extended_tweet']['entities']['urls']
         except KeyError:
@@ -226,7 +222,6 @@ def insert_tweet(connection,tweet):
         ########################################
         # insert into the tweet_mentions table
         ########################################
-        print("mentions")
         try:
             mentions = tweet['extended_tweet']['entities']['user_mentions']
         except KeyError:
@@ -255,14 +250,14 @@ def insert_tweet(connection,tweet):
                     (id_tweets, id_users)
                     values
                     (:id_tweets, :id_users)
+                    on conflict do nothing;
                 ''')
 
-            res = connection.execute(sql, {'id_users':mention['id'], id_tweets:tweet['id']})
+            res = connection.execute(sql, {'id_users':mention['id'], 'id_tweets':tweet['id']})
 
         ########################################
         # insert into the tweet_tags table
         ########################################
-        print("tags")
 
         try:
             hashtags = tweet['extended_tweet']['entities']['hashtags'] 
@@ -279,6 +274,7 @@ def insert_tweet(connection,tweet):
                     (id_tweets, tag)
                     values
                     (:id_tweets, :tag)
+                    on conflict do nothing;
                 ''')
             res = connection.execute(sql, {'id_tweets':tweet['id'], 'tag':tag})
 
@@ -301,8 +297,9 @@ def insert_tweet(connection,tweet):
                     (id_tweets, id_urls, type)
                     values
                     (:id_tweets, :id_urls, :type)
+                    on conflict do nothing;
                 ''')
-            res = connection.execute(sql, {'id_tweets':tweet['id'], 'id_urls':id_urls, 'type':media['type']})
+            res = connection.execute(sql, {'id_tweets':tweet['id'], 'id_urls':id_urls, 'type':medium['type']})
 
 ################################################################################
 # main functions
