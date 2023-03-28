@@ -88,7 +88,6 @@ def insert_tweet(connection,tweet):
     This function is only partially implemented.
     You'll need to add appropriate SQL insert statements to get it to work.
     '''
-
     # skip tweet if it's already inserted
     sql=sqlalchemy.sql.text('''
     SELECT id_tweets 
@@ -114,8 +113,17 @@ def insert_tweet(connection,tweet):
             user_id_urls = get_id_urls(tweet['user']['url'], connection)
 
         # create/update the user
-        sql = sqlalchemy.sql.text('''
-            ''')
+        # TODO: determine where remove_nulls is supposed to be
+        sql = sqlalchemy.sql.text(remove_nulls('''
+            insert into users 
+                (id_users, created_at, id_urls, friends_count, listed_count, favourites_count, statuses_count, protected, verified, screen_name, name, location, description)
+                values
+                (:id_users, :created_at, :id_urls, :friends_count, :listed_count, :favourites_count, :statuses_count, :protected, :verified, :screen_name, :name, :location, :description)
+            on conflict do nothing;
+            '''))
+        user = tweet['user']
+        res = connection.execute(sql,{'id_users':user['id'], 'name':user['name'], 'screen_name':user['screen_name'], 'location':user['location'], 'description':user['description'], 'protected':user['protected'], 'verified':user['verified'], 'friends_count':user['friends_count'], 'favourites_count':user['favourites_count'], 'listed_count':user['listed_count'], 'created_at':user['created_at'], 'id_urls':user_id_urls, 'statuses_count':user['statuses_count']})
+
 
         ########################################
         # insert into the tweets table
@@ -176,8 +184,8 @@ def insert_tweet(connection,tweet):
                 ''')
 
         # insert the tweet
-        sql=sqlalchemy.sql.text(f'''
-            ''')
+        #sql=sqlalchemy.sql.text(f'''
+        #    ''')
 
         ########################################
         # insert into the tweet_urls table
@@ -282,11 +290,15 @@ if __name__ == '__main__':
             for subfilename in sorted(archive.namelist(), reverse=True):
                 with io.TextIOWrapper(archive.open(subfilename)) as f:
                     for i,line in enumerate(f):
+                        # line = remove_nulls(line)
 
                         # load and insert the tweet
-                        tweet = json.loads(line)
+                        tweet = json.loads(remove_nulls(line))
+                        if (line != remove_nulls(line)):
+                            print("remove_nulls worked!")
                         insert_tweet(connection,tweet)
 
                         # print message
                         if i%args.print_every==0:
                             print(datetime.datetime.now(),filename,subfilename,'i=',i,'id=',tweet['id'])
+    print("finished")
