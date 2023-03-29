@@ -191,14 +191,13 @@ def insert_tweet(connection,tweet):
                     ''')
                 res = connection.execute(sql,{'id_users':tweet.get('in_reply_to_user_id', None)})
             # insert the tweet
-            # TODO reinsert geo
             sql=sqlalchemy.sql.text(f'''
                 insert into tweets
-                    (id_tweets, id_users, created_at, in_reply_to_status_id, in_reply_to_user_id, quoted_status_id, retweet_count, favorite_count, quote_count, source, text, country_code, state_code, lang, place_name)
+                    (id_tweets, id_users, created_at, in_reply_to_status_id, in_reply_to_user_id, quoted_status_id, retweet_count, favorite_count, quote_count, source, text, country_code, state_code, lang, place_name, geo)
                     values
-                    (:id_tweets, :id_users, :created_at, :in_reply_to_status_id, :in_reply_to_user_id, :quoted_status_id, :retweet_count, :favorite_count, :quote_count, :source, :text, :country_code, :state_code, :lang, :place_name)''')#, :geo)
-                #''')
-            res = connection.execute(sql, {'id_tweets':tweet['id'], 'id_users':tweet.get('in_reply_to_user_id', None), 'created_at':tweet['created_at'], 'in_reply_to_status_id':tweet['in_reply_to_status_id'], 'in_reply_to_user_id':tweet['in_reply_to_user_id'], 'quoted_status_id':tweet.get('quoted_status_id', None), 'retweet_count':tweet['retweet_count'], 'favorite_count':tweet['favorite_count'], 'quote_count':tweet['quote_count'], 'source':remove_nulls(tweet['source']), 'text':remove_nulls(text), 'country_code':country_code,'state_code':state_code, 'lang':remove_nulls(tweet['lang']),'place_name':remove_nulls(place_name)})#, 'geo':geo_str + geo_coords})
+                    (:id_tweets, :id_users, :created_at, :in_reply_to_status_id, :in_reply_to_user_id, :quoted_status_id, :retweet_count, :favorite_count, :quote_count, :source, :text, :country_code, :state_code, :lang, :place_name, :geo)''')
+            geo = geo_str + '(' + geo_coords + ')' 
+            res = connection.execute(sql, {'id_tweets':tweet['id'], 'id_users':tweet.get('in_reply_to_user_id', None), 'created_at':tweet['created_at'], 'in_reply_to_status_id':tweet['in_reply_to_status_id'], 'in_reply_to_user_id':tweet['in_reply_to_user_id'], 'quoted_status_id':tweet.get('quoted_status_id', None), 'retweet_count':tweet['retweet_count'], 'favorite_count':tweet['favorite_count'], 'quote_count':tweet['quote_count'], 'source':remove_nulls(tweet['source']), 'text':remove_nulls(text), 'country_code':country_code,'state_code':state_code, 'lang':remove_nulls(tweet['lang']),'place_name':remove_nulls(place_name), 'geo':geo})
 
             ########################################
             # insert into the tweet_urls table
